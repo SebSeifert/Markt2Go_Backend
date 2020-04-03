@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Markt2Go.Services.MarketService;
 using Markt2Go.Services.SellerService;
 using Markt2Go.DTOs.Market;
+using System;
 
 namespace Markt2Go.Controllers
 {
@@ -18,6 +19,11 @@ namespace Markt2Go.Controllers
         private readonly ISellerService _sellerService;
         public MarketController(IMarketService marketService, ISellerService sellerService)
         {
+            if (marketService == null)
+                throw new ArgumentNullException(nameof(marketService));
+            if (sellerService == null)
+                throw new ArgumentNullException(nameof(sellerService));
+                
             _marketService = marketService;
             _sellerService = sellerService;
         }
@@ -49,29 +55,23 @@ namespace Markt2Go.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize("add:market")]
         public async Task<IActionResult> Add([FromBody] AddMarketDTO addedMarket)
         {
-            return Forbid();
-
             return Ok(await _marketService.AddMarket(addedMarket));
         }
 
         [HttpPut]
-        [Authorize]
+        [Authorize("update:market")]
         public async Task<IActionResult> Update([FromBody] UpdateMarketDTO updatedMarket)
         {
-            return Forbid();
-
             return Ok(await _marketService.UpdateMarket(updatedMarket));
         }
 
         [HttpDelete("{id}")]
-        [Authorize]
+        [Authorize("delete:market")]
         public async Task<IActionResult> Delete(long id)
         {
-            return Forbid();
-
             return Ok(await _marketService.DeleteMarket(id));
         }
     }
